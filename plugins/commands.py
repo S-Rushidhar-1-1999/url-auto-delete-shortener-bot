@@ -9,8 +9,8 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from database.ia_filterdb import Media, get_file_details, unpack_new_file_id
 from database.users_chats_db import db
 from info import *
-from utils import get_settings, get_size, is_subscribed, save_group_settings, temp
-from database.connections_mdb import active_connection
+from utils import get_settings, get_size, is_subscribed, save_group_settings, temp, str_to_b64, b64_to_str, get_current_time, get_readable_time, shorten_url
+from database.connections_mdb import active_connection, mycol
 import re
 import json
 import base64
@@ -39,6 +39,115 @@ async def start(client, message):
     if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
         await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
+    if message.chat.id == message.from_user.id :
+        uid = message.from_user.id
+        if uid not in ADMINS:
+            result = mycol.find_one({"id": uid})
+            if result is None:
+                ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 600)}")
+                ad_url = await shorten_url(f"https://telegram.me/{SESSION}?start={ad_code}")
+                await client.send_message(
+                    message.chat.id,
+                    f"Hey **{message.from_user.mention}** \n\nYour Ads token is expired, refresh your token and try again. \n\n**Token Timeout:** 1 hour \n\n**What is token?** \nThis is an ads token. If you pass 1 ad, you can use the bot for 1 hour after passing the ad.",
+                    reply_markup=InlineKeyboardMarkup(
+                        [
+                            [
+                                InlineKeyboardButton(
+                                    "Click Here To Refresh Token",
+                                    url=str(ad_url).replace("mdisk.pro", "Mdisk.Pro"),
+                                )
+                            ]
+                        ]
+                    ),
+                reply_to_message_id=message.id,
+                )
+                mycol.update_one(
+                    {"id": uid},
+                    {"$set": {"time_out": get_current_time()}}, upsert=True
+                )
+                return
+            elif int(result["time_out"]) < get_current_time():
+                if message.text.startswith("/start ") and len(message.text) > 7:
+                    uid = message.from_user.id
+                    try:
+                        ad_msg = b64_to_str(message.text.split("/start ")[1])
+                        if int(uid) != int(ad_msg.split(":")[0]):
+                            await client.send_message(
+                                message.chat.id,
+                                "This Token Is Not For You",
+                                reply_to_message_id=message.id,
+                            )
+                            return
+                        if int(ad_msg.split(":")[1]) < get_current_time():
+                            await client.send_message(
+                                message.chat.id,
+                                "Token Expired Regenerate A New Token",
+                                reply_to_message_id=message.id,
+                            )
+                            return
+                        if int(ad_msg.split(":")[1]) > int(get_current_time() + 600):
+                            await client.send_message(
+                                message.chat.id,
+                                "Dont Try To Be Over Smart",
+                                reply_to_message_id=message.id,
+                            )
+                            return
+                        mycol.update_one(
+                            {"id": uid},
+                            {"$set": {"time_out": int(ad_msg.split(":")[1])}}, upsert=True
+                        )
+                        await client.send_message(
+                            message.chat.id,
+                            "Congratulations! Ads token refreshed successfully! \n\nIt will expire after 1 Hour.",
+                            reply_to_message_id=message.id,
+                        )
+                        return
+                    except BaseException:
+                        ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 600)}")
+                        ad_url = await shorten_url(f"https://telegram.me/{SESSION}?start={ad_code}")
+                        await client.send_message(
+                            message.chat.id,
+                            f"Hey **{message.from_user.mention}** \n\nYour Ads token is expired, refresh your token and try again. \n\n**Token Timeout:** 1 hour \n\n**What is token?** \nThis is an ads token. If you pass 1 ad, you can use the bot for 1 hour after passing the ad.",
+                            reply_markup=InlineKeyboardMarkup(
+                                [
+                                    [
+                                        InlineKeyboardButton(
+                                            "Click Here To Refresh Token",
+                                            url=str(ad_url).replace("mdisk.pro", "Mdisk.Pro"),
+                                        )
+                                    ]
+                                ]
+                            ),
+                            reply_to_message_id=message.id,
+                        )
+                        mycol.update_one(
+                            {"id": uid},
+                            {"$set": {"time_out": get_current_time()}}, upsert=True
+                        )
+                        return
+                else:
+                    ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 600)}")
+                    ad_url = await shorten_url(f"https://telegram.me/{SESSION}?start={ad_code}")
+                    await client.send_message(
+                        message.chat.id,
+                        f"Hey **{message.from_user.mention}** \n\nYour Ads token is expired, refresh your token and try again. \n\n**Token Timeout:** 1 hour \n\n**What is token?** \nThis is an ads token. If you pass 1 ad, you can use the bot for 1 hour after passing the ad.",
+                        reply_markup=InlineKeyboardMarkup(
+                            [
+                                [
+                                    InlineKeyboardButton(
+                                        "Click Here To Refresh Token",
+                                        url=str(ad_url).replace("mdisk.pro", "Mdisk.Pro"),
+                                    )
+                                ]
+                            ]
+                        ),
+                        reply_to_message_id=message.id,
+                    )
+                    mycol.update_one(
+                        {"id": uid},
+                        {"$set": {"time_out": get_current_time()}}, upsert=True
+                    )
+                    return
     if len(message.command) != 2:
         buttons = [[
             InlineKeyboardButton('🤖 UᎮDΛTΞS 🤖', url=f'https://telegram.me/{UPDATES_CHANNEL}')
