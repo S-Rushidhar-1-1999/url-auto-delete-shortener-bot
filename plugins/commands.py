@@ -44,7 +44,7 @@ async def start(client, message):
         if uid not in ADMINS:
             result = mycol.find_one({"id": uid})
             if result is None:
-                ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 600)}")
+                ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 3600)}")
                 ad_url = await shorten_url(f"https://telegram.me/{SESSION}?start={ad_code}")
                 await client.send_message(
                     message.chat.id,
@@ -54,7 +54,7 @@ async def start(client, message):
                             [
                                 InlineKeyboardButton(
                                     "Click Here To Refresh Token",
-                                    url=str(ad_url).replace("mdisk.pro", "Mdisk.Pro"),
+                                    url=str(ad_url),
                                 )
                             ]
                         ]
@@ -85,7 +85,7 @@ async def start(client, message):
                                 reply_to_message_id=message.id,
                             )
                             return
-                        if int(ad_msg.split(":")[1]) > int(get_current_time() + 600):
+                        if int(ad_msg.split(":")[1]) > int(get_current_time() + 3600):
                             await client.send_message(
                                 message.chat.id,
                                 "Dont Try To Be Over Smart",
@@ -103,7 +103,7 @@ async def start(client, message):
                         )
                         return
                     except BaseException:
-                        ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 600)}")
+                        ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 3600)}")
                         ad_url = await shorten_url(f"https://telegram.me/{SESSION}?start={ad_code}")
                         await client.send_message(
                             message.chat.id,
@@ -113,7 +113,7 @@ async def start(client, message):
                                     [
                                         InlineKeyboardButton(
                                             "Click Here To Refresh Token",
-                                            url=str(ad_url).replace("mdisk.pro", "Mdisk.Pro"),
+                                            url=str(ad_url),
                                         )
                                     ]
                                 ]
@@ -126,7 +126,7 @@ async def start(client, message):
                         )
                         return
                 else:
-                    ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 600)}")
+                    ad_code = str_to_b64(f"{uid}:{str(get_current_time() + 3600)}")
                     ad_url = await shorten_url(f"https://telegram.me/{SESSION}?start={ad_code}")
                     await client.send_message(
                         message.chat.id,
@@ -136,7 +136,7 @@ async def start(client, message):
                                 [
                                     InlineKeyboardButton(
                                         "Click Here To Refresh Token",
-                                        url=str(ad_url).replace("mdisk.pro", "Mdisk.Pro"),
+                                        url=str(ad_url),
                                     )
                                 ]
                             ]
