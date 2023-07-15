@@ -431,3 +431,7 @@ async def shorten_url(link):
     site_url = f"https://api.shareus.io/direct_link?api_key=8Ycn5AnXcSdgf0tA680HneHzuiS2&pages=3&link={link}&format=text"
     l = str(requests.get(site_url).text).replace('</script>','<script>').replace('<script>','').replace('window.location.replace("','').replace('");','')
     return str(l).strip()
+
+# def shorten_url(url):
+#     site_url = f"https://atglinks.com/api?api=3e5c0428cc433d9013050ae4b62cf448c34f045a&url={url}&format=text"
+#     return str(requests.get(site_url).text)
