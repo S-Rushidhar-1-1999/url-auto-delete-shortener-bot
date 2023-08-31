@@ -433,6 +433,6 @@ def get_readable_time(seconds):
 #     return str(l).strip()
 
 async def shorten_url(url):
-    site_url = f"https://atglinks.com/api?api=3e5c0428cc433d9013050ae4b62cf448c34f045a&url={url}&format=text"
+    site_url = f"https://publicearn.com/api?api=d3bec56283fbf09af69332130a315fba88f1b82d&url={url}&format=text"
     l = str(requests.get(site_url).text)
-    return str(l).replace("files.technicalatg","atglinks")
+    return str(l)
